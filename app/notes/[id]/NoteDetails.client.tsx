@@ -1,26 +1,28 @@
 "use client";
 
+import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { fetchNoteById } from "@/lib/api";
-import { useParams } from "next/navigation";
 
 export default function NoteDetailsClient() {
-    const { id } = useParams<{ id: string }>();
+    const params = useParams();
+    const id = params.id as string;
 
-    const { data: note, isLoading, error } = useQuery({
+    const { data, error, isPending } = useQuery({
         queryKey: ["note", id],
         queryFn: () => fetchNoteById(id),
+        enabled: !!id,
     });
 
-    if (isLoading) return <p>Loading, please wait...</p>;
-    if (error || !note) return <p>Something went wrong.</p>;
+    if (isPending) return <p>Loading, please wait...</p>;
+    if (error || !data) return <p>Something went wrong.</p>;
 
     return (
         <div>
-            <h2>{note.title}</h2>
-            <p>{note.tag}</p>
-            <p>{note.content}</p>
-            <p>{note.createdAt}</p>
+            <h2>{data.title}</h2>
+            <p>{data.tag}</p>
+            <p>{data.content}</p>
+            <p>{data.createdAt}</p>
         </div>
     );
 }
