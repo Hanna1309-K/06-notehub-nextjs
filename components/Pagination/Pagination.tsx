@@ -3,31 +3,29 @@
 import css from "./Pagination.module.css";
 
 interface Props {
-    page: number;
+    currentPage: number;
     totalPages: number;
-    onChange: (page: number) => void;
+    onPageChange: (page: number) => void;
 }
 
-export default function Pagination({ page, totalPages, onChange }: Props) {
+export default function Pagination({
+    currentPage,
+    totalPages,
+    onPageChange,
+}: Props) {
+    const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+
     return (
         <div className={css.pagination}>
-            <button
-                onClick={() => onChange(page - 1)}
-                disabled={page === 1}
-            >
-                Prev
-            </button>
-
-            <span>
-                {page} / {totalPages}
-            </span>
-
-            <button
-                onClick={() => onChange(page + 1)}
-                disabled={page === totalPages}
-            >
-                Next
-            </button>
+            {pages.map((page) => (
+                <button
+                    key={page}
+                    onClick={() => onPageChange(page)}
+                    className={page === currentPage ? css.active : ""}
+                >
+                    {page}
+                </button>
+            ))}
         </div>
     );
 }

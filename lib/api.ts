@@ -3,6 +3,11 @@
 import axios from "axios";
 import { Note } from "@/types/note";
 
+export interface NotesResponse {
+    notes: Note[];
+    totalPages: number;
+}
+
 const api = axios.create({
     baseURL: "https://notehub-public.goit.study/api",
     headers: {
@@ -10,14 +15,18 @@ const api = axios.create({
     },
 });
 
-// ✅ LIST NOTES
-export const fetchNotes = async (): Promise<Note[]> => {
-    const res = await api.get("/notes");
-    return res.data.notes; // 👈 ВАЖЛИВО
+export const fetchNotes = async (
+    search: string = "",
+    page: number = 1
+): Promise<NotesResponse> => {
+    const res = await api.get<NotesResponse>("/notes", {
+        params: { search, page },
+    });
+
+    return res.data;
 };
 
-// ✅ NOTE BY ID
 export const fetchNoteById = async (id: string): Promise<Note> => {
-    const res = await api.get(`/notes/${id}`);
+    const res = await api.get<Note>(`/notes/${id}`);
     return res.data;
 };
