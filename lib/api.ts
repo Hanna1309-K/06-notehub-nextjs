@@ -1,3 +1,5 @@
+// lib/api.ts
+
 import axios from "axios";
 import { Note } from "@/types/note";
 
@@ -8,15 +10,14 @@ const api = axios.create({
     },
 });
 
-export const fetchNotes = async (search: string = ""): Promise<Note[]> => {
-    const { data } = await api.get("/notes", {
-        params: { search },
-    });
-
-    return data;
+// ✅ LIST NOTES
+export const fetchNotes = async (): Promise<Note[]> => {
+    const res = await api.get("/notes");
+    return res.data.notes; // 👈 ВАЖЛИВО
 };
 
+// ✅ NOTE BY ID
 export const fetchNoteById = async (id: string): Promise<Note> => {
-    const { data } = await api.get(`/notes/${id}`);
-    return data;
+    const res = await api.get(`/notes/${id}`);
+    return res.data;
 };
