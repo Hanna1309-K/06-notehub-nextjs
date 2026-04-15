@@ -5,8 +5,7 @@ import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import css from "./NoteForm.module.css";
 import { createNote } from "@/lib/api";
-
-type Tag = "Work" | "Personal" | "Todo" | "Meeting" | "Shopping";
+import { Tag } from "@/types/note";
 
 interface NoteFormProps {
     onClose: () => void;
@@ -25,9 +24,17 @@ const initialValues: FormValues = {
 };
 
 const validationSchema = Yup.object({
-    title: Yup.string().required("Title is required"),
-    content: Yup.string().required("Content is required"),
-    tag: Yup.string().required("Tag is required"),
+    title: Yup.string()
+        .min(3, "Title must be at least 3 characters")
+        .max(50, "Title must be at most 50 characters")
+        .required("Title is required"),
+
+    content: Yup.string()
+        .max(500, "Content must be at most 500 characters"),
+
+    tag: Yup.string()
+        .oneOf(["Work", "Personal", "Todo", "Meeting", "Shopping"])
+        .required("Tag is required"),
 });
 
 export default function NoteForm({ onClose }: NoteFormProps) {
@@ -59,8 +66,12 @@ export default function NoteForm({ onClose }: NoteFormProps) {
                 <Form className={css.form}>
                     {/* TITLE */}
                     <div className={css.formGroup}>
-                        <label>Title</label>
-                        <Field name="title" className={css.input} />
+                        <label htmlFor="title">Title</label>
+                        <Field
+                            id="title"
+                            name="title"
+                            className={css.input}
+                        />
                         <ErrorMessage
                             name="title"
                             component="div"
@@ -70,9 +81,10 @@ export default function NoteForm({ onClose }: NoteFormProps) {
 
                     {/* CONTENT */}
                     <div className={css.formGroup}>
-                        <label>Content</label>
+                        <label htmlFor="content">Content</label>
                         <Field
                             as="textarea"
+                            id="content"
                             name="content"
                             className={css.textarea}
                         />
@@ -85,8 +97,13 @@ export default function NoteForm({ onClose }: NoteFormProps) {
 
                     {/* TAG */}
                     <div className={css.formGroup}>
-                        <label>Tag</label>
-                        <Field as="select" name="tag" className={css.select}>
+                        <label htmlFor="tag">Tag</label>
+                        <Field
+                            as="select"
+                            id="tag"
+                            name="tag"
+                            className={css.select}
+                        >
                             <option value="Work">Work</option>
                             <option value="Personal">Personal</option>
                             <option value="Todo">Todo</option>

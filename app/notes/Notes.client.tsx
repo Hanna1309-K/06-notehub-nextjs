@@ -71,11 +71,13 @@ export default function NotesClient() {
                         <>
                             <NoteList notes={data.notes} />
 
-                            <Pagination
-                                currentPage={page}
-                                totalPages={data.totalPages}
-                                onPageChange={setPage}
-                            />
+                            {data.totalPages > 1 && (
+                                <Pagination
+                                    currentPage={page}
+                                    totalPages={data.totalPages}
+                                    onPageChange={setPage}
+                                />
+                            )}
                         </>
                     )}
                 </>

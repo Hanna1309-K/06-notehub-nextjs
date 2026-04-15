@@ -22,7 +22,17 @@ export default function NoteDetailsClient() {
     return (
         <div>
             <h1>{data.title}</h1>
+
             <p>{data.content}</p>
+
+            {/* TAG */}
+            <p><strong>Tag:</strong> {data.tag}</p>
+
+            {/* CREATED DATE */}
+            <p>
+                <strong>Created:</strong>{" "}
+                {new Date(data.createdAt).toLocaleString()}
+            </p>
         </div>
     );
 }
