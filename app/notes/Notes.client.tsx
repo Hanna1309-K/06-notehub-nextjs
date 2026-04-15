@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { fetchNotes } from "@/lib/api";
 import css from "./NotesPage.module.css";
@@ -13,22 +13,40 @@ import NoteForm from "@/components/NoteForm/NoteForm";
 
 export default function NotesClient() {
     const [search, setSearch] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [page, setPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
 
+    // debounce (тільки для API)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    // search handler (UX trigger)
+    const handleSearch = (value: string) => {
+        setSearch(value);
+        setPage(1);
+        setHasSearched(true);
+    };
+
+    // query (тільки після реального пошуку)
     const { data, isLoading, error } = useQuery({
-        queryKey: ["notes", search, page],
-        queryFn: () => fetchNotes(search, page),
+        queryKey: ["notes", debouncedSearch, page],
+        queryFn: () => fetchNotes(debouncedSearch, page),
         placeholderData: keepPreviousData,
-        enabled: search.trim().length > 0, // 👈 ключ
+        enabled: hasSearched,
     });
 
     return (
         <div className={css.app}>
-
-            {/* TOOLBAR завжди */}
+            {/* TOOLBAR (завжди видно) */}
             <div className={css.toolbar}>
-                <SearchBox value={search} onChange={setSearch} />
+                <SearchBox value={search} onChange={handleSearch} />
 
                 <button
                     className={css.button}
@@ -38,25 +56,28 @@ export default function NotesClient() {
                 </button>
             </div>
 
-            {/* ДО ПОШУКУ */}
-            {search.trim() === "" && (
+            {/* BEFORE SEARCH */}
+            {!hasSearched && (
                 <p>Enter search to load notes</p>
             )}
 
-            {/* ПІСЛЯ ПОШУКУ */}
-            {isLoading && search && <p>Loading...</p>}
-
-            {error && <p>Error</p>}
-
-            {data && search && (
+            {/* AFTER SEARCH */}
+            {hasSearched && (
                 <>
-                    <NoteList notes={data.notes} />
+                    {isLoading && <p>Loading...</p>}
+                    {error && <p>Error loading notes</p>}
 
-                    <Pagination
-                        currentPage={page}
-                        totalPages={data.totalPages}
-                        onPageChange={setPage}
-                    />
+                    {data && (
+                        <>
+                            <NoteList notes={data.notes} />
+
+                            <Pagination
+                                currentPage={page}
+                                totalPages={data.totalPages}
+                                onPageChange={setPage}
+                            />
+                        </>
+                    )}
                 </>
             )}
 

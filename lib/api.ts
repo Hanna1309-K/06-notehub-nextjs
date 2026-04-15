@@ -30,3 +30,15 @@ export const fetchNoteById = async (id: string): Promise<Note> => {
     const res = await api.get<Note>(`/notes/${id}`);
     return res.data;
 };
+
+export const createNote = async (
+    data: Omit<Note, "id" | "createdAt" | "updatedAt">
+): Promise<Note> => {
+    const res = await api.post<Note>("/notes", data);
+    return res.data;
+};
+
+export const deleteNote = async (id: string) => {
+    const res = await api.delete(`/notes/${id}`);
+    return res.data;
+};

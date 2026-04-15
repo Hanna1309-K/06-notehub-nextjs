@@ -5,12 +5,14 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchNoteById } from "@/lib/api";
 
 export default function NoteDetailsClient() {
-    const { id } = useParams<{ id: string }>();
+    const params = useParams();
+    const id = params?.id as string;
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["note", id],
         queryFn: () => fetchNoteById(id),
         enabled: !!id,
+        refetchOnMount: false,
     });
 
     if (isLoading) return <p>Loading, please wait...</p>;
