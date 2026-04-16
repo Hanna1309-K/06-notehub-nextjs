@@ -16,9 +16,7 @@ export default function NotesClient() {
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [page, setPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [hasSearched, setHasSearched] = useState(false);
 
-    // debounce (тільки для API)
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(search);
@@ -27,24 +25,19 @@ export default function NotesClient() {
         return () => clearTimeout(timer);
     }, [search]);
 
-    // search handler (UX trigger)
     const handleSearch = (value: string) => {
         setSearch(value);
         setPage(1);
-        setHasSearched(true);
     };
 
-    // query (тільки після реального пошуку)
     const { data, isLoading, error } = useQuery({
         queryKey: ["notes", debouncedSearch, page],
         queryFn: () => fetchNotes(debouncedSearch, page),
         placeholderData: keepPreviousData,
-        enabled: hasSearched,
     });
 
     return (
         <div className={css.app}>
-            {/* TOOLBAR (завжди видно) */}
             <div className={css.toolbar}>
                 <SearchBox value={search} onChange={handleSearch} />
 
@@ -56,34 +49,23 @@ export default function NotesClient() {
                 </button>
             </div>
 
-            {/* BEFORE SEARCH */}
-            {!hasSearched && (
-                <p>Enter search to load notes</p>
-            )}
+            {isLoading && <p>Loading...</p>}
+            {error && <p>Error loading notes</p>}
 
-            {/* AFTER SEARCH */}
-            {hasSearched && (
+            {data && (
                 <>
-                    {isLoading && <p>Loading...</p>}
-                    {error && <p>Error loading notes</p>}
+                    <NoteList notes={data.notes} />
 
-                    {data && (
-                        <>
-                            <NoteList notes={data.notes} />
-
-                            {data.totalPages > 1 && (
-                                <Pagination
-                                    currentPage={page}
-                                    totalPages={data.totalPages}
-                                    onPageChange={setPage}
-                                />
-                            )}
-                        </>
+                    {data.totalPages > 1 && (
+                        <Pagination
+                            currentPage={page}
+                            totalPages={data.totalPages}
+                            onPageChange={setPage}
+                        />
                     )}
                 </>
             )}
 
-            {/* MODAL */}
             {isModalOpen && (
                 <Modal onClose={() => setIsModalOpen(false)}>
                     <NoteForm onClose={() => setIsModalOpen(false)} />
