@@ -23,6 +23,8 @@ const initialValues: FormValues = {
     tag: "Work",
 };
 
+const tagOptions = ["Work", "Personal", "Todo", "Meeting", "Shopping"] as const;
+
 const validationSchema = Yup.object({
     title: Yup.string()
         .min(3, "Title must be at least 3 characters")
@@ -30,10 +32,11 @@ const validationSchema = Yup.object({
         .required("Title is required"),
 
     content: Yup.string()
-        .max(500, "Content must be at most 500 characters"),
+        .max(500, "Content must be at most 500 characters")
+        .notRequired(),
 
-    tag: Yup.string()
-        .oneOf(["Work", "Personal", "Todo", "Meeting", "Shopping"])
+    tag: Yup.mixed<Tag>()
+        .oneOf(tagOptions)
         .required("Tag is required"),
 });
 
@@ -64,22 +67,12 @@ export default function NoteForm({ onClose }: NoteFormProps) {
         >
             {({ isSubmitting }) => (
                 <Form className={css.form}>
-                    {/* TITLE */}
                     <div className={css.formGroup}>
                         <label htmlFor="title">Title</label>
-                        <Field
-                            id="title"
-                            name="title"
-                            className={css.input}
-                        />
-                        <ErrorMessage
-                            name="title"
-                            component="div"
-                            className={css.error}
-                        />
+                        <Field id="title" name="title" className={css.input} />
+                        <ErrorMessage name="title" component="div" className={css.error} />
                     </div>
 
-                    {/* CONTENT */}
                     <div className={css.formGroup}>
                         <label htmlFor="content">Content</label>
                         <Field
@@ -88,36 +81,21 @@ export default function NoteForm({ onClose }: NoteFormProps) {
                             name="content"
                             className={css.textarea}
                         />
-                        <ErrorMessage
-                            name="content"
-                            component="div"
-                            className={css.error}
-                        />
+                        <ErrorMessage name="content" component="div" className={css.error} />
                     </div>
 
-                    {/* TAG */}
                     <div className={css.formGroup}>
                         <label htmlFor="tag">Tag</label>
-                        <Field
-                            as="select"
-                            id="tag"
-                            name="tag"
-                            className={css.select}
-                        >
-                            <option value="Work">Work</option>
-                            <option value="Personal">Personal</option>
-                            <option value="Todo">Todo</option>
-                            <option value="Meeting">Meeting</option>
-                            <option value="Shopping">Shopping</option>
+                        <Field as="select" id="tag" name="tag" className={css.select}>
+                            {tagOptions.map((tag) => (
+                                <option key={tag} value={tag}>
+                                    {tag}
+                                </option>
+                            ))}
                         </Field>
-                        <ErrorMessage
-                            name="tag"
-                            component="div"
-                            className={css.error}
-                        />
+                        <ErrorMessage name="tag" component="div" className={css.error} />
                     </div>
 
-                    {/* ACTIONS */}
                     <div className={css.actions}>
                         <button
                             type="button"
