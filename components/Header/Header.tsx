@@ -10,7 +10,7 @@ export default function Header() {
 
             <nav>
                 <ul className={css.navigation}>
-                    <li><Link href="/notes">Home</Link></li>
+                    <li><Link href="/">Home</Link></li>
                     <li><Link href="/notes">Notes</Link></li>
                 </ul>
             </nav>
